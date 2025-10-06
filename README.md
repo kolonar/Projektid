@@ -7,7 +7,6 @@ See portfoolio sisaldab valikut minu programmeerimisprojektidest, mis demonstree
 *   Pirogov (2023)
 *   Trips Traps Trull (T3) (2024)
 *   Converter (2025)
-*   *Tulevane Projekt:* AT90USB647 arendusplaadi programm (C)
 
 See portfoolio täieneb pidevalt uute projektidega.
 
