@@ -27,7 +27,7 @@
 
 ---
 
-## 🔌 Connector Pinouts
+## Connector Pinouts
 
 ### **J1 - USB-C (Power & Data)**
 Used for debugging and potential data transfer.
