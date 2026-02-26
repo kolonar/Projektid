@@ -2,15 +2,13 @@
 
 # --- Värvikoodid ---
 BLUE='\e[1;34m'
-NC='\e[0m' # PARANDATUD RIDA (oli \003)
+NC='\e[0m'
 
 # --- Abifunktsioon ---
 print_header() {
-    # Kasutame -e lippu, et echo tõlgendaks \e värvikoode
     echo -e "${BLUE}# $1${NC}"
 }
 
-# Välju kohe, kui mõni käsk ebaõnnestub
 set -e
 
 echo "--- Starting full system update ---"
