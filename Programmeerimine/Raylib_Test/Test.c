@@ -42,7 +42,7 @@ int main(){
         if (rect_y > WINDOW_Y - RECT_HEIGHT){
             rect_y = WINDOW_Y - RECT_HEIGHT;
             vel = -vel * bounce;
-            if (vel > -1 && vel < 1) vel = 0; 
+            if (vel > -0.3 && vel < 0.3) vel = 0; 
         }
         if (rect_y < 0) {
             rect_y = 0;
