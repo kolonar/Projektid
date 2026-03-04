@@ -1,23 +1,27 @@
-# Programmeerimisprojektide Portfoolio
+# Programming Projects Portfolio
 
-See portfoolio sisaldab valikut minu programmeerimisprojektidest, mis demonstreerivad minu oskuste arengut aja jooksul. Projektid on järjestatud kronoloogiliselt, alustades varasemast tööst kuni hiljutiseni. Iga projektiga olen püüdnud parandada oma kodeerimisoskusi, lähtekoodi loetavust ja efektiivsust.
+This portfolio contains a selection of my programming projects that demonstrate the development of my skills over time. The projects are arranged chronologically, starting from my earliest work to the most recent. With each project, I have strived to improve my coding skills, source code readability, and efficiency.
 
-**Projektide ajajoon:**
+**Project timeline:**
 
-*   Pirogov (2023)
-*   Trips Traps Trull (T3) (2024)
-*   Converter (2025)
+* Pirogov (2023)
+* Tic-Tac-Toe (T3) (2024)
+* Converter (2025)
+* PID controller (2026)
 
-See portfoolio täieneb pidevalt uute projektidega.
+This portfolio is continuously updated with new projects.
 
 ## Pirogov (Python)
 
-Pirogov on minu esimene suuremahuline programmeerimisprojekt, mis arendati Pythonis. Projekti eesmärk oli luua arkaadmäng. Kuigi praeguse kogemuse juures näen koodis arenguruumi, oli Pirogov oluline õppimisvõimalus ning projekt pälvis tunnustust, võites kursuse programmeerimise konkursi.
+Pirogov is my first large-scale programming project, developed in Python. The goal of the project was to create an arcade game. Although, with my current experience, I see room for improvement in the code, Pirogov was an important learning opportunity, and the project earned recognition by winning the course's programming competition.
 
-## Trips Traps Trull (C++ ja Python)
+## Tic-Tac-Toe (C++ and Python)
 
-Trips Traps Trull on klassikaline lauamäng, mis on realiseeritud kasutades C++ ja Pythonit. Selle projekti peamine väljakutse seisnes kahe erineva programmeerimiskeele (C++ mängulooogika jaoks ja Python kasutajaliidese jaoks) integreerimises. See projekt on päris hästi dokumenteeritud, seega sealt saab vajadusel juure lugeda.
+Tic-Tac-Toe is a classic board game implemented using C++ and Python. The main challenge of this project lay in integrating two different programming languages (C++ for the game logic and Python for the user interface). This project is fairly well documented, so you can read more about it there if needed.
 
 ## Converter (C)
 
-Converter on lihtne C-keeles kirjutatud programm, mis loodi eesmärgiga harjutada C süntaksit ja põhilisi kontseptsioone enne suurema projekti (AT90USB647 arendusplaadi programm) kallale asumist. Programm teostab ainult ühikute teisendamist.
+Converter is a simple program written in C, created with the goal of practicing C syntax and fundamental concepts before tackling a larger project (a program for the AT90USB647 development board). The program solely performs unit conversions.
+
+## PID controller (C) *WIP*
+I had already programmed different kinds of control systems in python, however this is the first time doing it in C. This is also my first time using Raylib.
