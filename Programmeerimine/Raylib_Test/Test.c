@@ -22,6 +22,13 @@ typedef struct {
     Vector2 prev_error;
 } PIDState;
 
+typedef struct{
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+} direction;
+
 
 void ApplyThrust(Vector2 *vel, Vector2 desire, float dt) {
     vel->x += (THRUST_POWER * desire.x) * dt;
