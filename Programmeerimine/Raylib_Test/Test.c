@@ -1,6 +1,5 @@
 #include "raylib.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <math.h>
 
 #define WINDOW_X 1000
 #define WINDOW_Y 700
@@ -10,154 +9,135 @@
 #define RECT_HEIGHT 50
 
 #define GRAVITY 9.81f
-#define THRUST_POWER 10.0f
+#define THRUST_POWER 1.0f
 #define BOUNCE 0.5f
 #define FRICTION 0.5f
-#define VEL_MAX 20.0f //not used
-#define GOAL { (WINDOW_X/2) + (RECT_WIDTH/2), (WINDOW_Y/2) + (RECT_HEIGHT/2) }
 
-#define Kp 0.1f
-#define Ki 0.01f
-#define Kd 0.1f
+#define Kp 0.7f
+#define Ki 0.5f
+#define Kd 1.8f
 
-void ApplyThrust(float *vel_x, float *vel_y, float *desire) {
-    *vel_x += (THRUST_POWER * desire[0]) / FPS;
-    *vel_y += (THRUST_POWER * desire[1]) / FPS; 
+typedef struct {
+    Vector2 integral;
+    Vector2 prev_error;
+} PIDState;
+
+
+void ApplyThrust(Vector2 *vel, Vector2 desire, float dt) {
+    vel->x += (THRUST_POWER * desire.x) * dt;
+    vel->y += (THRUST_POWER * desire.y) * dt; 
 }
-void DrawFlame(float x, float y, char *dir) {
-    if (*dir == 'u'){
-        Vector2 p1 = { x + 15, y+50 };
-        Vector2 p2 = { x + 25, y + 80 };
-        Vector2 p3 = { x + 35, y+50 };
-        DrawTriangle(p1, p2, p3, ORANGE);
-    } else if (*dir == 'l'){
-        Vector2 p1 = { x + 50, y + 15};
-        Vector2 p2 = { x + 50, y + 35};
-        Vector2 p3 = { x + 80, y + 25};
-        DrawTriangle(p1, p2, p3, ORANGE);
-    }else if (*dir == 'r'){
-        Vector2 p1 = { x - 30, y + 25};
-        Vector2 p2 = { x, y + 35};
-        Vector2 p3 = { x, y + 15};
-        DrawTriangle(p1, p2, p3, ORANGE);
-    }else if (*dir == 'd'){
-        Vector2 p1 = { x + 15, y-0 };
-        Vector2 p2 = { x + 35, y-0 };
-        Vector2 p3 = { x + 25, y-30 };
-        DrawTriangle(p1, p2, p3, ORANGE);
+
+void DrawFlame(float x, float y, char dir) {
+    Vector2 p1, p2, p3;
+    if (dir == 'u'){
+        p1 = (Vector2){ x + 15, y + 50 }; p2 = (Vector2){ x + 25, y + 80 }; p3 = (Vector2){ x + 35, y + 50 };
+    } else if (dir == 'l'){
+        p1 = (Vector2){ x + 50, y + 15}; p2 = (Vector2){ x + 50, y + 35}; p3 = (Vector2){ x + 80, y + 25};
+    } else if (dir == 'r'){
+        p1 = (Vector2){ x - 30, y + 25}; p2 = (Vector2){ x, y + 35}; p3 = (Vector2){ x, y + 15};
+    } else if (dir == 'd'){
+        p1 = (Vector2){ x + 15, y }; p2 = (Vector2){ x + 35, y }; p3 = (Vector2){ x + 25, y - 30 };
+    } else {
+        return;
     }
+    DrawTriangle(p1, p2, p3, ORANGE);
 }
-void PID(float x, float y, float *vel_x, float *vel_y) {
-    float dt = GetFrameTime(); 
-    
+
+void PID(Vector2 pos, Vector2 goal, Vector2 *vel, PIDState *state, float dt) {
     if (dt <= 0.0f) return; 
 
-    float ex = ((float[])GOAL)[0] - x - (RECT_WIDTH/2);
-    float ey = ((float[])GOAL)[1] - y - (RECT_HEIGHT/2);
+    Vector2 error = {
+        goal.x - pos.x - (RECT_WIDTH / 2.0f),
+        goal.y - pos.y - (RECT_HEIGHT / 2.0f)
+    };
 
-    float Px = Kp * ex;
-    float Py = Kp * ey;
+    Vector2 P = { Kp * error.x, Kp * error.y };
 
-    static float integral_x = 0;
-    static float integral_y = 0;
-    
-    integral_x += ex * dt; 
-    integral_y += ey * dt;
+    state->integral.x += error.x * dt; 
+    state->integral.y += error.y * dt;
+    Vector2 I = { Ki * state->integral.x, Ki * state->integral.y };
 
-    float Ix = Ki * integral_x;
-    float Iy = Ki * integral_y;
+    Vector2 D = {
+        Kd * (error.x - state->prev_error.x) / dt,
+        Kd * (error.y - state->prev_error.y) / dt
+    };
 
-    static float prev_ex = 0;
-    static float prev_ey = 0;
+    state->prev_error = error;
 
-    float Dx = Kd * (ex - prev_ex) / dt;
-    float Dy = Kd * (ey - prev_ey) / dt;
-
-    prev_ex = ex;
-    prev_ey = ey;
-
-    float desire[2] = {Px + Ix + Dx, Py + Iy + Dy};
-    ApplyThrust(vel_x, vel_y, desire);
+    Vector2 desire = { P.x + I.x + D.x, P.y + I.y + D.y };
+    ApplyThrust(vel, desire, dt);
 }
-int main(){
-    InitWindow(WINDOW_X, WINDOW_Y, "Test");
+
+int main(void) {
+    InitWindow(WINDOW_X, WINDOW_Y, "PID Controller");
     SetTargetFPS(FPS);
 
-    float rect_x = 450;
-    float rect_y = 600;
-    float vel_x = 0;
-    float vel_y = 0;
-    float desire[2]={0,0};
+    Vector2 pos = { 450.0f, 600.0f };
+    Vector2 vel = { 0.0f, 0.0f };
+    Vector2 goal = { (WINDOW_X/2.0f) + (RECT_WIDTH/2.0f), (WINDOW_Y/2.0f) + (RECT_HEIGHT/2.0f) };
+    
+    PIDState pid_state = {0};
     char direction = 'n';
 
     while (!WindowShouldClose()){
-        vel_y += GRAVITY / FPS;
+        float dt = GetFrameTime();
+        
+        vel.y += GRAVITY * dt;
+        
         bool isThrusting = false;
-        if (IsKeyDown(KEY_UP)) {
-            desire[0]=0;
-            desire[1]=-55;
-            ApplyThrust(&vel_x,&vel_y,desire);
-            isThrusting = true;
-            direction = 'u';
+        Vector2 manual_desire = {0};
+
+        if (IsKeyDown(KEY_UP)) { manual_desire.y = -70.0f; direction = 'u'; isThrusting = true; }
+        if (IsKeyDown(KEY_DOWN)) { manual_desire.y = 70.0f; direction = 'd'; isThrusting = true; }
+        if (IsKeyDown(KEY_LEFT)) { manual_desire.x = -70.0f; direction = 'l'; isThrusting = true; }
+        if (IsKeyDown(KEY_RIGHT)) { manual_desire.x = 70.0f; direction = 'r'; isThrusting = true; }
+
+        if (isThrusting) {
+            ApplyThrust(&vel, manual_desire, dt);
         }
-        if (IsKeyDown(KEY_DOWN)) {
-            desire[0]=0;
-            desire[1]=55;
-            ApplyThrust(&vel_x,&vel_y,desire);
-            isThrusting = true;
-            direction = 'd';
-        }
-        if (IsKeyDown(KEY_LEFT)) {
-            desire[0]=-55;
-            desire[1]=0;
-            ApplyThrust(&vel_x,&vel_y,desire);
-            isThrusting = true;
-            direction = 'l';
-        }
-        if (IsKeyDown(KEY_RIGHT)) {
-            desire[0]=55;
-            desire[1]=0;
-            ApplyThrust(&vel_x,&vel_y,desire);
-            isThrusting = true;
-            direction = 'r';
-        }
-        PID(rect_x,rect_y, &vel_x, &vel_y);
-        rect_y += vel_y;
-        rect_x += vel_x;
-        if (rect_y > WINDOW_Y - RECT_HEIGHT){
-            rect_y = WINDOW_Y - RECT_HEIGHT;
-            vel_y = -vel_y * BOUNCE;
-            vel_x = vel_x * FRICTION;
-            if (vel_y > -0.3 && vel_y < 0.3) vel_y = 0; 
-        }
-        else if (rect_y <=0){
-            rect_y = 0;
-            vel_y = -vel_y * BOUNCE;
-            if (vel_y > -0.3 && vel_y < 0.3) vel_y = 0; 
+        //Comment to fly:
+        PID(pos, goal, &vel, &pid_state, dt);
+
+        pos.y += vel.y;
+        pos.x += vel.x;
+
+        if (pos.y > WINDOW_Y - RECT_HEIGHT){
+            pos.y = WINDOW_Y - RECT_HEIGHT;
+            vel.y = -vel.y * BOUNCE;
+            vel.x *= FRICTION;
+            if (fabsf(vel.y) < 0.3f) vel.y = 0.0f; 
+        } else if (pos.y <= 0){
+            pos.y = 0;
+            vel.y = -vel.y * BOUNCE;
+            if (fabsf(vel.y) < 0.3f) vel.y = 0.0f; 
         }
         
-        if (rect_x <= 0){
-            rect_x = 0;
-            vel_x = -vel_x * BOUNCE;
-            if (vel_x > -0.3 && vel_x < 0.3) vel_x = 0; 
+        if (pos.x <= 0){
+            pos.x = 0;
+            vel.x = -vel.x * BOUNCE;
+            if (fabsf(vel.x) < 0.3f) vel.x = 0.0f; 
+        } else if (pos.x >= WINDOW_X - RECT_WIDTH){
+            pos.x = WINDOW_X - RECT_WIDTH;
+            vel.x = -vel.x * BOUNCE;
+            if (fabsf(vel.x) < 0.3f) vel.x = 0.0f; 
         }
-        else if (rect_x >= WINDOW_X-RECT_WIDTH){
-            rect_x = WINDOW_X-RECT_WIDTH;
-            vel_x = -vel_x * BOUNCE;
-            if (vel_x > -0.3 && vel_x < 0.3) vel_x = 0; 
-        }
+
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawCircle(((float[])GOAL)[0], ((float[])GOAL)[1], 50.0f, RED);
-        DrawRectangle(rect_x, rect_y, RECT_WIDTH, RECT_HEIGHT, DARKBLUE);
-        if (isThrusting) {
-            DrawFlame(rect_x, rect_y, &direction);
-            DrawText("Thrusting!", 400,10,20,DARKPURPLE);
-        }
-        float total_vel = abs(vel_y)+abs(vel_x);
-        DrawText(TextFormat("Velocity: %.2f", total_vel), 10, 40, 20, BLACK);
+            ClearBackground(RAYWHITE);
+            DrawCircleV(goal, 50.0f, RED);
+            DrawRectangle((int)pos.x, (int)pos.y, RECT_WIDTH, RECT_HEIGHT, DARKBLUE);
+            
+            if (isThrusting) {
+                DrawFlame(pos.x, pos.y, direction);
+                DrawText("Thrusting!", 400, 10, 20, DARKPURPLE);
+            }
+            
+            float total_vel = fabsf(vel.y) + fabsf(vel.x); 
+            DrawText(TextFormat("Velocity: %.2f", total_vel), 10, 40, 20, BLACK);
         EndDrawing();
     }
+    
     CloseWindow();
     return 0;
 }
