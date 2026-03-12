@@ -11,7 +11,7 @@ As a Computer Engineer, I focus on building robust hardware architectures that t
 
 ## Project Directory
 
-### 1. [HARM - Delta X Basketball Robot Mainboard]
+### 1. HARM - Delta X Basketball Robot Mainboard
 
 **HARM** is a high-performance motor control and sensor interface motherboard designed for a basketball-playing robot used in the **Delta X** robotics competition. It acts as the "lower-level brain" of the robot, translating high-level commands into precise physical movements.
 
@@ -25,7 +25,7 @@ As a Computer Engineer, I focus on building robust hardware architectures that t
 
 * **Interface:** Communicates with an overarching Intel NUC via USB 2.0 (Virtual COM Port).
 
-### 2. [CoolFridgeGuard - Smart Refrigerator Door Alarm]
+### 2. CoolFridgeGuard - Smart Refrigerator Door Alarm
 
 **CoolFridgeGuard** is a low-power, custom PCB designed to monitor a refrigerator door and play a custom audio alert from an SD card if left open. It focuses on battery efficiency, custom audio amplification, and sensor integration.
 
