@@ -45,7 +45,7 @@ An active project focused on translating my previous experience with Python-base
 ## Software Skills Demonstrated
 
 | Skill Area | Application in Projects |
-| --- | --- |
+| ------ | ------ |
 | **Cross-Language Integration** | Bridging compiled C++ logic backends with interpreted Python frontends. |
 | **Control Systems Implementation** | Translating mathematical PID control loops into efficient C code. |
 | **Graphics & Game Dev** | Managing game states, inputs, and utilizing Raylib for real-time visual rendering. |

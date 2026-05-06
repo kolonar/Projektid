@@ -60,7 +60,7 @@ This directory chronicles my software engineering projects from 2023 to the pres
 
 | Domain | Key Skills & Technologies |
 
-| --- | --- |
+| ------  | ------ |
 
 | **Hardware Design** | PCB layout, power architectures (Boost/LDO), digital isolation, ESD protection. |
 
